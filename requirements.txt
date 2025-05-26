@@ -1,8 +1,13 @@
 streamlit
+ultralytics==8.3.96
+torch
+torchvision
 pandas
 numpy
-torch
-joblib
 scikit-learn
-Pillow
+joblib
 requests
+Pillow
+opencv-python-headless
+openpyxl
+xlsxwriter
