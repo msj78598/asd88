@@ -357,7 +357,8 @@ if uploaded_file:
     
     with st.spinner('جاري تحميل النماذج...'):
         import torch
-        model_yolo = torch.hub.load(str(BASE_DIR / "yolov5"), 'custom', path=MODEL_PATH, source='local', force_reload=True)
+        from yolov5.models.common import DetectMultiBackend
+        model_yolo = DetectMultiBackend(MODEL_PATH, device='cpu')
         model_ml = joblib.load(ML_MODEL_PATH)
         scaler = joblib.load(SCALER_PATH)
     st.success("✅ تم تحميل النماذج بنجاح")
