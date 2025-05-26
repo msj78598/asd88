@@ -1,25 +1,8 @@
-# Python version
-python==3.10
-
-# YOLOv5 dependencies
-torch==2.0.1
-torchvision==0.15.2
-opencv-python==4.8.0.76
-matplotlib
-numpy
+streamlit
 pandas
-Pillow
-PyYAML
-scipy
-tqdm
-seaborn
-ipython
-
-# Streamlit for dashboard
-streamlit==1.35.0
-
-# For model saving/loading
+numpy
+torch
 joblib
-
-# For Excel/CSV I/O
-openpyxl
+scikit-learn
+Pillow
+requests
