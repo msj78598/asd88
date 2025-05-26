@@ -1,8 +1,7 @@
 streamlit==1.45.1
+ultralytics==8.3.96
 torch==2.7.0
 torchvision==0.22.0
-ultralytics==8.3.96
-opencv-python-headless==4.11.0.86
 pandas
 numpy
 joblib
@@ -11,3 +10,4 @@ requests
 Pillow
 openpyxl
 xlsxwriter
+opencv-python-headless==4.11.0.86
