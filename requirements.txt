@@ -8,7 +8,4 @@ Pillow
 requests
 joblib
 matplotlib
-seaborn
 scikit-learn
-scipy
-ultralytics
