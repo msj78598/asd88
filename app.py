@@ -11,6 +11,9 @@ import joblib
 import streamlit as st
 import urllib.parse
 import base64
+from yolov5.models.experimental import attempt_load
+from yolov5.utils.general import non_max_suppression
+from yolov5.utils.torch_utils import select_device
 
 # إعدادات عامة لواجهة Streamlit
 st.set_page_config(
@@ -32,12 +35,14 @@ MODEL_PATH = str(BASE_DIR / "models" / "best.pt")
 ML_MODEL_PATH = BASE_DIR / "models" / "isolation_forest_model.joblib"
 SCALER_PATH = BASE_DIR / "models" / "scaler.joblib"
 
+device = select_device('cpu')
+
 for folder in [IMG_DIR, DETECTED_DIR, OUTPUT_FOLDER]:
     folder.mkdir(parents=True, exist_ok=True)
 
-# تحميل نموذج YOLOv5 بشكل صحيح باستخدام torch.hub
+# تحميل النماذج بشكل صحيح محلياً
 with st.spinner('تحميل النماذج...'):
-    model_yolo = torch.hub.load('ultralytics/yolov5', 'custom', path=MODEL_PATH, force_reload=True, device='cpu')
+    model_yolo = attempt_load(MODEL_PATH, map_location=device)
     model_ml = joblib.load(ML_MODEL_PATH)
     scaler = joblib.load(SCALER_PATH)
 st.success("✅ تم تحميل النماذج بنجاح")
@@ -69,25 +74,29 @@ def pixel_to_area(lat, box):
 # كشف الحقول باستخدام نموذج YOLO
 def detect_field(img_path, meter_id, info, model):
     img = Image.open(img_path).convert("RGB")
-    results = model(img_path)
-    df_result = results.pandas().xyxy[0]
-    fields = df_result[(df_result["name"]=="field") & (df_result["confidence"]>=0.5)]
-    if fields.empty: return None,None,None
-    nearest_field = fields.iloc[0]
-    box = [nearest_field["xmin"], nearest_field["ymin"], nearest_field["xmax"], nearest_field["ymax"]]
+    img_tensor = torch.from_numpy(np.array(img)).permute(2, 0, 1).float().div(255.0).unsqueeze(0).to(device)
+    pred = model(img_tensor)[0]
+    pred = non_max_suppression(pred)[0]
+
+    if pred is None or len(pred) == 0:
+        return None, None, None
+
+    box = pred[0][:4].cpu().numpy()
     area = pixel_to_area(info["y"], box)
-    if area<5000: return None,None,None
+    if area < 5000:
+        return None, None, None
+
     ImageDraw.Draw(img).rectangle(box, outline="green", width=3)
     detected_path = DETECTED_DIR / f"{meter_id}.png"
     img.save(detected_path)
-    return round(nearest_field["confidence"]*100,2), detected_path.as_posix(), int(area)
+    return round(float(pred[0][4])*100, 2), detected_path.as_posix(), int(area)
 
 # تحديد الأولوية
 def determine_priority_custom(meter_id, area, breaker_capacity, consumption):
     if not meter_id.strip(): return "حالة خاصة"
-    if area<10000: return None
-    if area>50000 and (breaker_capacity<200 or consumption<20000): return "قصوى"
-    if consumption<10000: return "أولوية عالية"
+    if area < 10000: return None
+    if area > 50000 and (breaker_capacity < 200 or consumption < 20000): return "قصوى"
+    if consumption < 10000: return "أولوية عالية"
     return "عادية"
 
 # توليد روابط واتساب وخرائط جوجل
