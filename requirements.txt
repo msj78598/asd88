@@ -9,3 +9,4 @@ requests
 joblib
 matplotlib
 scikit-learn
+ultralytics
