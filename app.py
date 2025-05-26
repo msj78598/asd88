@@ -357,7 +357,7 @@ if uploaded_file:
     
     with st.spinner('جاري تحميل النماذج...'):
         import torch
-        model_yolo = torch.hub.load('ultralytics/yolov5', 'custom', path=MODEL_PATH, force_reload=True)
+        model_yolo = torch.hub.load(str(BASE_DIR / "yolov5"), 'custom', path=MODEL_PATH, source='local', force_reload=True)
         model_ml = joblib.load(ML_MODEL_PATH)
         scaler = joblib.load(SCALER_PATH)
     st.success("✅ تم تحميل النماذج بنجاح")
