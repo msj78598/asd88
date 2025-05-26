@@ -356,8 +356,9 @@ if uploaded_file:
         df = df.sort_values(by=sort_col, ascending=asc_bool)
     
     with st.spinner('جاري تحميل النماذج...'):
-        from ultralytics import YOLO
-        model_yolo = YOLO(MODEL_PATH)
+        from ultralytics.models.yolo.model import DetectionModel
+        model = DetectionModel("models/best.pt")
+
         model_ml = joblib.load(ML_MODEL_PATH)
         scaler = joblib.load(SCALER_PATH)
     st.success("✅ تم تحميل النماذج بنجاح")
