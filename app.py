@@ -356,7 +356,8 @@ if uploaded_file:
         df = df.sort_values(by=sort_col, ascending=asc_bool)
     
     with st.spinner('جاري تحميل النماذج...'):
-        model_yolo = torch.hub.load('ultralytics/yolov5', 'custom', path=MODEL_PATH, force_reload=True)
+        from ultralytics import YOLO
+        model_yolo = YOLO(MODEL_PATH)
         model_ml = joblib.load(ML_MODEL_PATH)
         scaler = joblib.load(SCALER_PATH)
     st.success("✅ تم تحميل النماذج بنجاح")
