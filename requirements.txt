@@ -43,7 +43,7 @@ narwhals==1.32.0
 networkx==3.3
 numpy==2.1.1
 oauthlib==3.2.2
-opencv-python==4.11.0.86
+opencv-python-headless
 openpyxl==3.1.5
 packaging==24.2
 pandas==2.2.3
