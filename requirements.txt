@@ -10,3 +10,4 @@ joblib
 matplotlib
 scikit-learn
 ultralytics
+seaborn
