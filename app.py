@@ -356,9 +356,7 @@ if uploaded_file:
         df = df.sort_values(by=sort_col, ascending=asc_bool)
     
     with st.spinner('جاري تحميل النماذج...'):
-        import torch
-        from yolov5.models.common import DetectMultiBackend
-        model_yolo = DetectMultiBackend(MODEL_PATH, device='cpu')
+        MODEL_PATH = (BASE_DIR / "models" / "best.pt").as_posix()
         model_ml = joblib.load(ML_MODEL_PATH)
         scaler = joblib.load(SCALER_PATH)
     st.success("✅ تم تحميل النماذج بنجاح")
