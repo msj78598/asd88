@@ -1,19 +1,15 @@
 import os
-import sys
 import math
 import io
 import pandas as pd
 import requests
 from pathlib import Path
 from PIL import Image, ImageDraw
-import torch
+from ultralytics import YOLO
 import joblib
 import streamlit as st
 import urllib.parse
 import base64
-from yolov5.models.experimental import attempt_load
-from yolov5.utils.general import non_max_suppression
-from yolov5.utils.torch_utils import select_device
 
 # إعدادات عامة لواجهة Streamlit
 st.set_page_config(
@@ -35,14 +31,12 @@ MODEL_PATH = str(BASE_DIR / "models" / "best.pt")
 ML_MODEL_PATH = BASE_DIR / "models" / "isolation_forest_model.joblib"
 SCALER_PATH = BASE_DIR / "models" / "scaler.joblib"
 
-device = select_device('cpu')
-
 for folder in [IMG_DIR, DETECTED_DIR, OUTPUT_FOLDER]:
     folder.mkdir(parents=True, exist_ok=True)
 
-# تحميل النماذج بشكل صحيح محلياً
+# تحميل النماذج بشكل صحيح
 with st.spinner('تحميل النماذج...'):
-    model_yolo = attempt_load(MODEL_PATH, map_location=device)
+    model_yolo = YOLO(MODEL_PATH)
     model_ml = joblib.load(ML_MODEL_PATH)
     scaler = joblib.load(SCALER_PATH)
 st.success("✅ تم تحميل النماذج بنجاح")
@@ -74,22 +68,18 @@ def pixel_to_area(lat, box):
 # كشف الحقول باستخدام نموذج YOLO
 def detect_field(img_path, meter_id, info, model):
     img = Image.open(img_path).convert("RGB")
-    img_tensor = torch.from_numpy(np.array(img)).permute(2, 0, 1).float().div(255.0).unsqueeze(0).to(device)
-    pred = model(img_tensor)[0]
-    pred = non_max_suppression(pred)[0]
-
-    if pred is None or len(pred) == 0:
+    results = model.predict(source=img_path, conf=0.5)
+    if not results or not results[0].boxes:
         return None, None, None
-
-    box = pred[0][:4].cpu().numpy()
+    box = results[0].boxes.xyxy.cpu().numpy()[0]
     area = pixel_to_area(info["y"], box)
     if area < 5000:
         return None, None, None
-
     ImageDraw.Draw(img).rectangle(box, outline="green", width=3)
     detected_path = DETECTED_DIR / f"{meter_id}.png"
     img.save(detected_path)
-    return round(float(pred[0][4])*100, 2), detected_path.as_posix(), int(area)
+    confidence = results[0].boxes.conf.cpu().numpy()[0]
+    return round(float(confidence)*100, 2), detected_path.as_posix(), int(area)
 
 # تحديد الأولوية
 def determine_priority_custom(meter_id, area, breaker_capacity, consumption):
