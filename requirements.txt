@@ -1,5 +1,4 @@
 streamlit
-opencv-python-headless==4.8.0.76
 numpy
 pandas
 torch
@@ -10,4 +9,4 @@ joblib
 matplotlib
 scikit-learn
 ultralytics
-seaborn
+opencv-python-headless==4.8.0.76
