@@ -41,7 +41,7 @@ sys.path.insert(0, (BASE_DIR / "yolov5").as_posix())
 from models.common import DetectMultiBackend
 
 with st.spinner('تحميل النماذج...'):
-    model_yolo = DetectMultiBackend(MODEL_PATH, device='cpu')
+    model_yolo = torch.hub.load('ultralytics/yolov5', 'custom', path=MODEL_PATH, force_reload=True, device='cpu')
     model_ml = joblib.load(ML_MODEL_PATH)
     scaler = joblib.load(SCALER_PATH)
 st.success("✅ تم تحميل النماذج بنجاح")
