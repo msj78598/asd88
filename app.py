@@ -29,19 +29,22 @@ IMG_SIZE = 640
 MAP_TYPE = "satellite"
 
 # إعدادات المسارات
-IMG_DIR = "images"
-DETECTED_DIR = "DETECTED_FIELDS/FIELDS/farms"
-MODEL_PATH = "yolov5/farms_project/field_detector/weights/best.pt"   # مسار نموذج YOLO
-ML_MODEL_PATH = "C:/Users/Sec/Documents/DEEP/isolation_forest_model.joblib"  # مسار نموذج العزل
-SCALER_PATH = "C:/Users/Sec/Documents/DEEP/scaler.joblib"             # مسار الـScaler
-TEMPLATE_FILE = "C:/Users/Sec/Documents/DEEP/fram.xlsx"               # نموذج الإكسل
-OUTPUT_FOLDER = "output"
+from pathlib import Path
 
-# (يمكن تجاهل capacity_thresholds هنا لأنها لم تعد مستخدمة)
-# إنشاء المجلدات اللازمة
-Path(IMG_DIR).mkdir(parents=True, exist_ok=True)
-Path(DETECTED_DIR).mkdir(parents=True, exist_ok=True)
-Path(OUTPUT_FOLDER).mkdir(parents=True, exist_ok=True)
+BASE_DIR = Path(__file__).resolve().parent
+
+IMG_DIR = BASE_DIR / "images"
+DETECTED_DIR = BASE_DIR / "DETECTED_FIELDS" / "FIELDS" / "farms"
+MODEL_PATH = str(BASE_DIR / "models" / "best.pt")  # مهم تحويله إلى str
+ML_MODEL_PATH = BASE_DIR / "models" / "isolation_forest_model.joblib"
+SCALER_PATH = BASE_DIR / "models" / "scaler.joblib"
+TEMPLATE_FILE = BASE_DIR / "fram.xlsx"
+OUTPUT_FOLDER = BASE_DIR / "output"
+
+IMG_DIR.mkdir(parents=True, exist_ok=True)
+DETECTED_DIR.mkdir(parents=True, exist_ok=True)
+OUTPUT_FOLDER.mkdir(parents=True, exist_ok=True)
+
 
 # -------------------------
 # تحسينات واجهة المستخدم (CSS)
